@@ -6,5 +6,9 @@ lista=$(ls $mojeDir | tr ' \n' ' ')
 mkdir $mojeDir/../content_short
 for f in $lista
 do
-	cat $mojeDir/$f |  sed -r 's/[:alnum:]{100,} ?//g' > $mojeDir/../content_short/$f
+	tekst=$(cat $mojeDir/$f |  sed -r 's/[a-z0-9]{100,}[ ]?//g')
+	if [ ${#tekst} -gt 0 ]
+	then
+		echo $tekst > $mojeDir/../content_short/$f.txt	
+	fi
 done
