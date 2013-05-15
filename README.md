@@ -1,4 +1,4 @@
 usenetspam
 ==========
 
-Project for UAM. Usenet spam detection.
+Project for UAM. Usenet clustering.
