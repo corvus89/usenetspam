@@ -1,0 +1,4 @@
+C:\Users\Seth\Downloads\HACtest\HACtest\HACtest\bin\Release\HACtest.exe
+C:\Users\Seth\Downloads\HACtest\HACtest\HACtest\bin\Release\HACtest.pdb
+C:\Users\Seth\Downloads\HACtest\HACtest\HACtest\obj\x86\Release\HACtest.exe
+C:\Users\Seth\Downloads\HACtest\HACtest\HACtest\obj\x86\Release\HACtest.pdb
