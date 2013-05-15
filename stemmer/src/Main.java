@@ -52,6 +52,7 @@ public class Main {
     }
     
     public static void Stemm(File file, String outputName) {   
+        System.out.println(outputName);
         try {
             InputStream inputStream = new FileInputStream(file);
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "windows-1250"));//new FileReader(path)
