@@ -49,7 +49,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>HACtest.Program</StartupObject>
+    <StartupObject>Cluster.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

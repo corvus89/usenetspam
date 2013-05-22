@@ -204,6 +204,21 @@ namespace Cluster
                     }
                 }
             }
+            if (nRow==0 && nCol==0)
+            {
+                for (int i = 0; i < nSize; ++i)
+                {
+                    for (int j = i + 1; j < nSize; ++j)
+                    {
+                        if ( checkTabooList(rows, i, j) == true)
+                        {
+                            fMax = fMatrix[i, j];
+                            nRow = i;
+                            nCol = j;
+                        }
+                    }
+                }
+            }
         }
 
         private Row mergeTwoRows(Row r1, Row r2)
@@ -282,7 +297,7 @@ namespace Cluster
             return merged;
         }
 
-        public List<Row> executeHAC(List<Row> rows, int nCategories)
+        public List<Row> executeHAC(List<Row> rows, int nCategories, int[] nExpected)
         {
             if (nCategories >= rows.Count)
             {
@@ -325,69 +340,79 @@ namespace Cluster
                 }
                 ++cn1t;
             }*/
-            for (int loop = 0; loop < NN; ++loop)
-            {
-                
-                nMatrixSize = rows.Count;
-                int nrow = 0;
-                int ncol = 0;
-                float fMax = 0.0f;
-                getMaxElement(rows, ref nrow, ref ncol, ref fMax, fMatrix, nMatrixSize);
-
-                Row r1 = rows[nrow];
-                Row r2 = rows[ncol];
-                Row merged = mergeTwoRows(r1, r2);
-                rows.Remove(r1);
-                rows.Remove(r2);
-
-                //reassign repeated matrix elements
-                int curRow = 0;
-                int curCol = 0;
-                for (int i = 0; i < nMatrixSize; ++i)
+            //using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"data\Debug.txt"))
+            //{
+                for (int loop = 0; loop <= NN; ++loop)
                 {
-                    if (i != nrow && i != ncol)
+
+                    nMatrixSize = rows.Count;
+                    int nrow = 0;
+                    int ncol = 0;
+                    float fMax = 0.0f;
+                    getMaxElement(rows, ref nrow, ref ncol, ref fMax, fMatrix, nMatrixSize);
+
+                    Row r1 = rows[nrow];
+                    Row r2 = rows[ncol];
+                    Row merged = mergeTwoRows(r1, r2);
+                    rows.Remove(r1);
+                    rows.Remove(r2);
+                    //file.WriteLine("{0}[{1}], ", n, nExpected[n]);
+                    //file.Write("[ {0} {1} ], ", nrow, ncol);
+                    //reassign repeated matrix elements
+                    int curRow = 0;
+                    int curCol = 0;
+                    for (int i = 0; i < nMatrixSize; ++i)
                     {
-                        curCol = curRow + 1;
-                        for (int j = i + 1; j < nMatrixSize; ++j)
+                        if (i != nrow && i != ncol)
                         {
-                            if (j != nrow && j != ncol)
+                            curCol = curRow + 1;
+                            for (int j = i + 1; j < nMatrixSize; ++j)
                             {
-                                fMatrix[curRow, curCol] = fMatrix[i, j];
-                                ++curCol;
+                                if (j != nrow && j != ncol)
+                                {
+                                    fMatrix[curRow, curCol] = fMatrix[i, j];
+                                    ++curCol;
+                                }
                             }
+                            ++curRow;
                         }
-                        ++curRow;
                     }
-                }
 
-                rows.Add(merged);
+                    rows.Add(merged);
 
-                //recompute new matrix elements
-                curRow = 0;
-                for (int i = 0; i < nMatrixSize; ++i)
-                {
-                    if (i != nrow && i != ncol)
+                    //recompute new matrix elements
+                    curRow = 0;
+                    for (int i = 0; i < nMatrixSize; ++i)
                     {
-                        fMatrix[curRow, nMatrixSize - 2] = getCosine(rows[curRow], rows[nMatrixSize - 2]);
-                        ++curRow;
+                        if (i != nrow && i != ncol)
+                        {
+                            fMatrix[curRow, nMatrixSize - 2] = getCosine(rows[curRow], rows[nMatrixSize - 2]);
+                            ++curRow;
+                        }
                     }
-                }
 
-                Console.Write("Step {0} \r", loop);
-            }
+                    Console.Write("Step {0} \r", loop);
+                }
+            //}
 
             Console.WriteLine();
             Console.WriteLine("\nList of categories\n");
             int cnt = 0;
-            foreach (Row row in rows)
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"data\Categories.txt"))
             {
-                Console.WriteLine("Category {0}\n", cnt);
-                foreach (int n in row.m_files)
+                foreach (Row row in rows)
                 {
-                    Console.Write("{0,5}", n);
+                    file.WriteLine("Category {0}\n", cnt);
+                    Console.WriteLine("Category {0}\n", cnt);
+                    foreach (int n in row.m_files)
+                    {
+                        file.WriteLine("{0}[{1}], ", n, nExpected[n]);
+                        Console.Write("{0}, ", n);
+                    }
+                    file.WriteLine("\n");
+                    Console.WriteLine("\n");
+                    ++cnt;
                 }
-                Console.WriteLine("\n");
-                ++cnt;
             }
 
             return rows;
@@ -425,15 +450,17 @@ namespace Cluster
             int[,] nAccuracy = new int[nCategories, nCategories];
             int nC = 0;
             //Console.WriteLine("test4");
-            //Console.WriteLine("{0}", rows.Count);
+            //Console.WriteLine("rows.Count : {0}", rows.Count);
             //Console.WriteLine("test4B");
             foreach (Row row in rows)
             {
+                //Console.Write("nC : {0}, ", nC);
                 //Console.WriteLine("{0}", nC);
                 for (int i = 0; i < nCategories; ++i)
                 {
                     nAccuracy[nC, i] = 0;
                 }
+                //Console.WriteLine("test4B");
                 foreach (int nFile in row.m_files)
                 {
                     int index = 0;
@@ -442,21 +469,28 @@ namespace Cluster
                         if (n == nFile) break;
                         ++index;
                     }
+                    //Console.WriteLine("test4B");
                     //Console.WriteLine("{0}", index);
                     ++nAccuracy[nC, nExpected[index]];
                 }
                 ++nC;
             }
             //Console.WriteLine("test5");
-            for (int i = 0; i < nCategories; ++i)
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"data\MatrixAccu.txt"))
             {
-                for (int j = 0; j < nCategories; ++j)
+                for (int i = 0; i < nCategories; ++i)
                 {
-                    Console.Write(" {0,4} ", nAccuracy[i, j]);
+                    for (int j = 0; j < nCategories; ++j)
+                    {
+                        file.Write(" {0,4} ", nAccuracy[i, j]);
+                        Console.Write(" {0,4} ", nAccuracy[i, j]);
+                    }
+                    file.WriteLine();
+                    Console.WriteLine();
                 }
+                file.WriteLine();
                 Console.WriteLine();
             }
-            Console.WriteLine();
 
             int[] sumInRows = new int[nCategories];
             int[] sumInCols = new int[nCategories];
@@ -590,11 +624,22 @@ namespace Cluster
             for (int i = 0; i < big_size; i++) {
                 nFiles[i] = i;
             }
+            Console.WriteLine("Podaj wielkość zbioru treningowego % ");
+
+            int testset = 10;
+            String readline = "";
+            readline = Console.ReadLine();
+            Console.WriteLine("{0}", readline);
+            testset = Convert.ToInt32(readline);
+            Console.WriteLine("{0}", testset);
+            testset = (100 / testset);
+
+            Console.WriteLine("{0}", testset);
 
             int[] nTabooList = new int[big_size];
             for (int i = 0; i < big_size; i++)
             {
-                if (i % 10 == 1)
+                if (i % testset == 1)
                 {
                     nTabooList[i] = Convert.ToInt32(list_nExpected[i]);
                 }
@@ -651,13 +696,24 @@ namespace Cluster
 
             HACBuilder hacBuilder = new HACBuilder();
             List<Row> rows = hacBuilder.readData(datafile, nFiles, nTabooList);
-            rows = hacBuilder.executeHAC(rows, nCategories);
-            Console.WriteLine("Accuracy {0}", hacBuilder.computeF_measure(rows, nExpected, nFiles));
-
+            rows = hacBuilder.executeHAC(rows, nCategories, nExpected);
+            double acc = hacBuilder.computeF_measure(rows, nExpected, nFiles);
+            Console.WriteLine("Accuracy {0}", acc);
+            using (System.IO.StreamWriter raport = new System.IO.StreamWriter(@"data\Raport.txt"))
+            {
+                raport.WriteLine("Accuracy {0}", acc);
+                raport.WriteLine(" FileId | Lerning | Expected");
+                for (int i = 0; i < big_size; i++)
+                {
+                    raport.WriteLine("{0,7} | {1,7} | {2,7}", nFiles[i], nTabooList[i], nExpected[i]);
+                }
+            
             DateTime end = DateTime.Now;
             TimeSpan duration = end - start;
             double time = duration.Minutes * 60.0 + duration.Seconds + duration.Milliseconds / 1000.0;
             Console.WriteLine("Total processing time {0:########.00} seconds", time);
+            raport.WriteLine("Total processing time {0:########.00} seconds", time);
+            }
         }
     }
 }

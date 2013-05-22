@@ -362,8 +362,8 @@ namespace HACtest
 
             Console.WriteLine();
             Console.WriteLine("\nList of categories\n");
-            int cnt = 1;
-            foreach (Row row in m_rows)
+            int cnt = 0;
+            /*foreach (Row row in m_rows)
             {
                 Console.WriteLine("Category {0}\n", cnt);
                 foreach (int n in row.m_files)
@@ -372,10 +372,32 @@ namespace HACtest
                 }
                 Console.WriteLine("\n");
                 ++cnt;
+            }*/
+
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"data\CategoriesRandom.txt"))
+            {
+                foreach (Row row in m_rows)
+                {
+                    file.WriteLine("Category {0}\n", cnt);
+                    Console.WriteLine("Category {0}\n", cnt);
+                    foreach (int n in row.m_files)
+                    {
+                        file.WriteLine("{0}, ", n);
+                        Console.Write("{0}, ", n);
+                    }
+                    file.WriteLine("\n");
+                    Console.WriteLine("\n");
+                    ++cnt;
+                }
             }
+
 
             double f_measure = computeF_measure(8, 16);
             Console.WriteLine("Accuracy {0}", f_measure);
+            using (System.IO.StreamWriter raport = new System.IO.StreamWriter(@"data\RaportRandom.txt"))
+            {
+                raport.WriteLine("Accuracy {0}", f_measure);
+            }
             return true;
         }
     }
