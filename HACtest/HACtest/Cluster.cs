@@ -342,7 +342,7 @@ namespace Cluster
             }*/
             //using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"data\Debug.txt"))
             //{
-                for (int loop = 0; loop <= NN; ++loop)
+                for (int loop = 0; loop < NN; ++loop)
                 {
 
                     nMatrixSize = rows.Count;
@@ -629,12 +629,11 @@ namespace Cluster
             int testset = 10;
             String readline = "";
             readline = Console.ReadLine();
-            Console.WriteLine("{0}", readline);
             testset = Convert.ToInt32(readline);
-            Console.WriteLine("{0}", testset);
+           
             testset = (100 / testset);
 
-            Console.WriteLine("{0}", testset);
+
 
             int[] nTabooList = new int[big_size];
             for (int i = 0; i < big_size; i++)
