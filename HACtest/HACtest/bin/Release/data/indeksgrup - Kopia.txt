@@ -1,0 +1,3 @@
+5042 pl.comp.os.unix
+4959 pl.misc.militaria
+4499 pl.misc.transport.miejski

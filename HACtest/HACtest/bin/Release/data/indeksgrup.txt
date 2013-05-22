@@ -1,0 +1,4 @@
+20 pl.comp.os.unix2
+1000 pl.comp.os.unix
+1000 pl.misc.militaria
+1000 pl.misc.transport.miejski
